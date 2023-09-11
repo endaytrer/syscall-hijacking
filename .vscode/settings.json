@@ -1,0 +1,19 @@
+{
+    "C_Cpp.default.includePath": [
+        "/home/endaytrer/linux/6.5.2/include",
+        "/home/endaytrer/linux/6.5.2/arch/x86/include"
+    ],
+    "files.associations": {
+        "*.m": "matlab",
+        "init.h": "c",
+        "build_bug.h": "c",
+        "compiler.h": "c",
+        "module.h": "c",
+        "list.h": "c",
+        "barrier.h": "c",
+        "stat.h": "c",
+        "syscall.h": "c",
+        "syscalls.h": "c",
+        "kernel.h": "c"
+    }
+}
