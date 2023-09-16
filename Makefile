@@ -1,15 +1,20 @@
-CC = gcc
-LD = gcc
-CFLAGS = -g -O0
+obj-m = modhello.o
+modhello-objs = hello.o hook.o
 
-obj-m = hello.o
-
-.PHONY: all clean
+.PHONY: all install uninstall clean
 
 
-all: hello.ko
-hello.ko:
+all: modhello.ko
+
+modhello.ko: hello.c hook.S
+	make clean
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) modules
+
+install: modhello.ko
+	insmod $^
+	
+uninstall: modhello.ko
+	rmmod $^
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) clean

@@ -31,9 +31,11 @@ asm volatile( \
     : "a" (dummy)\
     : \
 )
-asmlinkage int hooked_open(const char *filename, int flags, umode_t mode) {
-    printk(KERN_INFO "Hello from hook!\n");
-    return ((asmlinkage long (*)(const char *, int, umode_t))(syscall_table[__NR_open]))(filename, flags, mode);
+
+extern void hooked_openat(void);
+
+void sayhi(int dfd, const char *name, int flags, int mode) {
+    return;
 }
 
 void find_syscall_table(void) {
@@ -46,8 +48,8 @@ void find_syscall_table(void) {
 void hook_syscall(u32 syscall_num, void *entry) {
     syscall_table_save[syscall_num] = syscall_table[syscall_num];
     printk(KERN_INFO "Original entry is at    0x%lx\n", syscall_table_save[syscall_num]);
-    unprotect_memory();
     printk(KERN_INFO "New entry is at         0x%lx\n", (unsigned long)entry);
+    unprotect_memory();
     syscall_table[syscall_num] = (unsigned long)entry;
     protect_memory();
     printk(KERN_INFO "New entry injected at   0x%lx\n", syscall_table[syscall_num]);
@@ -60,13 +62,13 @@ void unhook_syscall(u32 syscall_num) {
 static int __init hello_init(void) {
     printk(KERN_INFO "Hello, world!\n");
     find_syscall_table();
-    hook_syscall(__NR_open, hooked_open);
+    hook_syscall(__NR_openat, hooked_openat);
     return 0;
 }
 
 static void __exit hello_exit(void) {
     printk(KERN_INFO "Goodbye, world!\n");
-    unhook_syscall(__NR_open);
+    unhook_syscall(__NR_openat);
 }
 
 module_init(hello_init);
