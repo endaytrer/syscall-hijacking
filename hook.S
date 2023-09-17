@@ -1,22 +1,17 @@
-#define __NR_openat 257
+#include <linux/unistd.h>
 .text
 .extern syscall_table_save
-.extern sayhi
-.globl hooked_openat
+.extern hooked_socket_c
+.globl hooked_socket
 
-hooked_openat:
-    pushq %rdi
-    pushq %rsi
-    pushq %rdx
-    pushq %r10
-    movq %r10, %rcx
+hooked_socket:
+    call hooked_socket_c
+    test %rax, %rax
+    jz original_syscall
 
-    callq sayhi
+    mov $0xdeadbeef, %rax
+    ret
 
-    popq %r10
-    popq %rdx
-    popq %rsi
-    popq %rdi
-    
-    movq syscall_table_save + __NR_openat*8(%rip), %rax
-    jmpq *%rax
+original_syscall:
+    movq syscall_table_save + __NR_socket*8(%rip), %rax
+    jmp *%rax
